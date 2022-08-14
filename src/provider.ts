@@ -42,3 +42,5 @@ export const CHAIN_INFO = {
 
 export const EIP_1559_CHAINS = [SupportedChainId.Mainnet, SupportedChainId.Polygon]
 export const SUPPORTED_CHAINS = Object.keys(CHAIN_INFO).map(Number)
+
+export const isPolygonChain = (chainId: SupportedChainId) => chainId === SupportedChainId.Polygon
