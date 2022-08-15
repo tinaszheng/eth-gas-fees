@@ -4,9 +4,9 @@
 import { BigNumber, providers } from 'ethers'
 import { computeBaseFeeTrend } from './computeBaseFeeTrend'
 import { GWEI_REWARD_OUTLIER_THRESHOLD, MAX_GWEI_FAST_PRI_FEE, MAX_GWEI_NORMAL_PRI_FEE, MAX_GWEI_URGENT_PRI_FEE, MAX_TIME_FACTOR, MIN_GWEI_FAST_PRI_FEE, MIN_GWEI_NORMAL_PRI_FEE, MIN_GWEI_URGENT_PRI_FEE, SAMPLE_MAX_PERCENTILE, SAMPLE_MIN_PERCENTILE, SUGGESTED_MAX_FEE_MULTIPLIER } from './consts'
-import { isPolygonChain } from './provider'
-import { BlockReward, FeeHistoryResponse, FeePerGasSuggestions, MaxFeeSuggestions, MaxPriorityFeeSuggestions } from './types'
-import { exponentialMovingAverage as ema, samplingCurve , gweiToWei, weiToGwei } from './util'
+import { isPolygonChain } from 'src/provider'
+import { BlockReward, FeeHistoryResponse, FeePerGasSuggestions, MaxFeeSuggestions, MaxPriorityFeeSuggestions } from 'src/types'
+import { exponentialMovingAverage as ema, samplingCurve , gweiToWei, weiToGwei } from 'src/util'
 
 export async function suggestMaxBaseFee(
   provider: providers.JsonRpcProvider,
@@ -106,11 +106,17 @@ export async function suggestMaxPriorityFee(
   const blocksRewardsPercentile50 = rewardsFilterOutliers(blocksRewards, outlierBlocks, 2)
   const blocksRewardsPercentile75 = rewardsFilterOutliers(blocksRewards, outlierBlocks, 3)
 
-  // Compute exponential moving averages for different percentiles
-  const emaPercentile10 = ema(blocksRewardsPercentile10, blocksRewardsPercentile10.length).at(-1)
-  const emaPercentile25 = ema(blocksRewardsPercentile25, blocksRewardsPercentile25.length).at(-1)
-  const emaPercentile50 = ema(blocksRewardsPercentile50, blocksRewardsPercentile50.length).at(-1)
-  const emaPercentile75 = ema(blocksRewardsPercentile75, blocksRewardsPercentile75.length).at(-1)
+  // Compute exponential moving averages over time 
+  const emasPercentile10 =  ema(blocksRewardsPercentile10, blocksRewardsPercentile10.length)
+  const emasPercentile25 = ema(blocksRewardsPercentile25, blocksRewardsPercentile25.length)
+  const emasPercentile50 = ema(blocksRewardsPercentile50, blocksRewardsPercentile50.length)
+  const emasPercentile75 = ema(blocksRewardsPercentile75, blocksRewardsPercentile75.length)
+
+  // Get updated ema value
+  const emaPercentile10 = emasPercentile10[emasPercentile10.length - 1]
+  const emaPercentile25 = emasPercentile25[emasPercentile25.length - 1]
+  const emaPercentile50 = emasPercentile50[emasPercentile50.length - 1]
+  const emaPercentile75 = emasPercentile75[emasPercentile75.length - 1]
 
   if (
     emaPercentile10 === undefined ||

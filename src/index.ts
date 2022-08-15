@@ -1,5 +1,5 @@
 import bodyParser from "body-parser";
-import { providers } from "ethers";
+import './polyfills/arrayAt';
 import express from "express";
 import { calculateGasFee, calculateOptimismDataGas } from "./gasFee";
 import { CHAIN_INFO, SupportedChainId, SUPPORTED_CHAINS } from "./provider";
