@@ -1,7 +1,7 @@
 import { BytesLike, providers } from "ethers";
 import { hexlify } from "ethers/lib/utils";
-import { OP_DYNAMIC_OVERHEAD, OP_FIXED_OVERHEAD, ZERO } from "./consts";
-import { CHAIN_INFO, EIP_1559_CHAINS, SupportedChainId } from "./provider";
+import { OP_DYNAMIC_OVERHEAD, OP_FIXED_OVERHEAD, ZERO } from "src/consts";
+import { CHAIN_INFO, EIP_1559_CHAINS, SupportedChainId } from "src/provider";
 
 export const calculateGasFee = async (request: providers.TransactionRequest) => {
     const chainId = (request.chainId as SupportedChainId) ?? SupportedChainId.Mainnet

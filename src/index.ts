@@ -1,8 +1,6 @@
 import bodyParser from "body-parser";
-import './polyfills/arrayAt';
 import express from "express";
-import { calculateGasFee, calculateOptimismDataGas } from "./gasFee";
-import { CHAIN_INFO, SupportedChainId, SUPPORTED_CHAINS } from "./provider";
+import { CHAIN_INFO, SupportedChainId, SUPPORTED_CHAINS } from "src/provider";
 
 const app = express();
 const port = process.env.PORT || 3333;

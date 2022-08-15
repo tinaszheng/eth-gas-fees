@@ -2,8 +2,8 @@
 // Which was based on https://github.com/zsfelfoldi/feehistory
 
 import { BigNumber, providers } from 'ethers'
-import { computeBaseFeeTrend } from './computeBaseFeeTrend'
-import { GWEI_REWARD_OUTLIER_THRESHOLD, MAX_GWEI_FAST_PRI_FEE, MAX_GWEI_NORMAL_PRI_FEE, MAX_GWEI_URGENT_PRI_FEE, MAX_TIME_FACTOR, MIN_GWEI_FAST_PRI_FEE, MIN_GWEI_NORMAL_PRI_FEE, MIN_GWEI_URGENT_PRI_FEE, SAMPLE_MAX_PERCENTILE, SAMPLE_MIN_PERCENTILE, SUGGESTED_MAX_FEE_MULTIPLIER } from './consts'
+import { computeBaseFeeTrend } from 'src/computeBaseFeeTrend'
+import { GWEI_REWARD_OUTLIER_THRESHOLD, MAX_GWEI_FAST_PRI_FEE, MAX_GWEI_NORMAL_PRI_FEE, MAX_GWEI_URGENT_PRI_FEE, MAX_TIME_FACTOR, MIN_GWEI_FAST_PRI_FEE, MIN_GWEI_NORMAL_PRI_FEE, MIN_GWEI_URGENT_PRI_FEE, SAMPLE_MAX_PERCENTILE, SAMPLE_MIN_PERCENTILE, SUGGESTED_MAX_FEE_MULTIPLIER } from 'src/consts'
 import { isPolygonChain } from 'src/provider'
 import { BlockReward, FeeHistoryResponse, FeePerGasSuggestions, MaxFeeSuggestions, MaxPriorityFeeSuggestions } from 'src/types'
 import { exponentialMovingAverage as ema, samplingCurve , gweiToWei, weiToGwei } from 'src/util'
