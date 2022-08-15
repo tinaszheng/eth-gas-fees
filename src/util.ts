@@ -57,14 +57,13 @@ export function percentDifference(t1: number, t2: number) {
  */
  export function dynamicMovingAverage(
   data: number[],
-  alpha: number | number[],
+  alpha: number,
   noHead = false
 ): number[] {
   const length = data.length
   if (alpha > 1) return Array(length)
   if (alpha === 1) return data.slice()
 
-  const noArrayWeight = !Array.isArray(alpha)
   const ret = []
   let datum
   // period `i`
@@ -75,25 +74,12 @@ export function percentDifference(t1: number, t2: number) {
   // Handles head
   for (; i < length; i++) {
     datum = data[i]
-    if (isValidNumber(datum) && (noArrayWeight || isValidNumber(datum))) {
+    if (isValidNumber(datum)) {
       ret[i] = noHead ? 0 : datum
       s = datum
       i++
       break
     }
-  }
-
-  // Dynamic weights: an array of weights
-  // Ref: https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
-  // with a dynamic alpha
-  if (!noArrayWeight) {
-    for (; i < length; i++) {
-      datum = data[i]
-      isValidNumber(datum) && isValidNumber(alpha[i])
-        ? (s = ret[i] = alpha[i] * datum + (1 - alpha[i]) * s)
-        : (ret[i] = ret[i - 1])
-    }
-    return ret
   }
 
   const o = 1 - alpha

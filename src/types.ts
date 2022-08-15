@@ -81,3 +81,36 @@ export interface MaxPriorityFeeSuggestions {
 }
 
 export interface FeePerGasSuggestions extends MaxFeeSuggestions, MaxPriorityFeeSuggestions {}
+
+export type FeeResponseEip1559 = {
+  type: FeeType.Eip1559
+  gasLimit: string
+  gasFee: {
+    normal: string 
+    fast: string 
+    urgent: string
+  } 
+  maxPriorityFeePerGas: {
+    normal: string 
+    fast: string 
+    urgent: string 
+  }
+  maxBaseFeePerGas: string
+} 
+
+export type FeeResponseLegacy = {
+  type: FeeType.Legacy 
+  gasLimit: string 
+  gasFee: {
+    normal: string 
+    fast: string 
+    urgent: string
+  }
+  gasPrice: {
+    normal: string 
+    fast: string 
+    urgent: string
+  }
+}
+
+export type FeeResponse = FeeResponseEip1559 | FeeResponseLegacy
