@@ -111,6 +111,12 @@ export type FeeResponseLegacy = {
     fast: string 
     urgent: string
   }
+  l1DataFee?: string
+  l1DataGas?: string
 }
 
-export type FeeResponse = FeeResponseEip1559 | FeeResponseLegacy
+export type ErrorResponse = {
+  error: string
+}
+
+export type FeeResponse = FeeResponseEip1559 | FeeResponseLegacy | ErrorResponse

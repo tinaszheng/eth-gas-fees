@@ -1,5 +1,5 @@
-import { BytesLike, providers } from "ethers";
-import { hexlify } from "ethers/lib/utils";
+import { providers } from "ethers";
+import * as OptimismSDK from '@eth-optimism/sdk'
 import { GAS_FAST_MULTIPLIER, GAS_LIMIT_INFLATION_FACTOR, GAS_URGENT_MULTIPLIER, OP_DYNAMIC_OVERHEAD, OP_FIXED_OVERHEAD, ZERO } from "./consts";
 import { CHAIN_INFO, EIP_1559_CHAINS, SupportedChainId } from "./provider";
 import { suggestFees } from "./eip1559FeeSuggestion";
@@ -53,7 +53,7 @@ const calculateOptimismFee = async (request: providers.TransactionRequest): Prom
     const gasLimit = baseGasLimit.mul(GAS_LIMIT_INFLATION_FACTOR)
     const gasPrice = await provider.getGasPrice() 
 
-    const l1DataFee = await calculateOptimismL1DataFee(request)
+    const { l1DataFee, l1DataGas } = await calculateOptimismL1DataFee(request)
     const l2ExecutionFee = gasPrice.mul(gasPrice)
     const baseGasFee = l1DataFee.add(l2ExecutionFee)
 
@@ -70,6 +70,8 @@ const calculateOptimismFee = async (request: providers.TransactionRequest): Prom
             fast: gasPrice.mul(GAS_FAST_MULTIPLIER).toString(),
             urgent: gasPrice.mul(GAS_URGENT_MULTIPLIER).toString(),
         },
+        l1DataFee: l1DataFee.toString(),
+        l1DataGas: l1DataGas.toString(),
     }
 }
 
@@ -99,30 +101,12 @@ const calculateArbitrumFee = async (request: providers.TransactionRequest): Prom
 
 const calculateOptimismL1DataFee = async (request: providers.TransactionRequest) => {
     const mainnetProvider = CHAIN_INFO[SupportedChainId.Mainnet].provider 
-    const mainnetGasPrice = await mainnetProvider.getGasPrice() // TODO: use eip-1559 gas price heuristic?
-    const l1DataGas = await calculateOptimismDataGas(request.data)
-    return l1DataGas.mul(mainnetGasPrice).mul(OP_DYNAMIC_OVERHEAD)
-}
+    const opProvider = CHAIN_INFO[SupportedChainId.Optimism].provider
+    const mainnetGasPrice = await mainnetProvider.getGasPrice()
+    const l2Provider = OptimismSDK.asL2Provider(opProvider)
+    const l1DataGas = await l2Provider.estimateL1Gas(request)
 
-// based on @uniswap/smart-order-router and originally based on optimism OVM_GasPriceOracle contract
-// https://github.com/Uniswap/smart-order-router/blob/cd8587a925f3841f71fb8a14f1d06b87f2975645/src/routers/alpha-router/gas-models/v3/v3-heuristic-gas-model.ts#L496-L512
-export const calculateOptimismDataGas = async (byteData: BytesLike | undefined) => {
-    if (!byteData) return ZERO
+    return { l1DataGas, l1DataFee: l1DataGas.mul(mainnetGasPrice).mul(OP_DYNAMIC_OVERHEAD)}
+} 
 
-    const data = hexlify(byteData)
-    const dataArr: string[] = data.slice(2).match(/.{1,2}/g)!;
-    const numBytes = dataArr.length;
-    let count = 0;
-    for (let i = 0; i < numBytes; i += 1) {
-      const byte = parseInt(dataArr[i]!, 16);
-      if (byte == 0) {
-        count += 4;
-      } else {
-        count += 16;
-      }
-    }
 
-    const unsigned = OP_FIXED_OVERHEAD.add(count);
-    const signedConversion = 68 * 16;
-    return unsigned.add(signedConversion);
-}

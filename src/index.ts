@@ -1,6 +1,6 @@
 import bodyParser from "body-parser";
 import express from "express";
-import { CHAIN_INFO, SupportedChainId, SUPPORTED_CHAINS } from "./provider";
+import { SUPPORTED_CHAINS } from "./provider";
 import { calculateGasFee } from "./gasFee";
 
 const app = express();
@@ -16,11 +16,15 @@ app.get("/", async (req, res) => {
     res.json({ error: "unsupported_chain_id"})
     return
   }
-
-  const { from, to, value, data } = req.query
-  const transactionRequest = { chainId, from: String(from), to: String(to), value: String(value), data: String(data) }
-  const response = await calculateGasFee(transactionRequest)
-  res.json(response);
+  try {
+    const { from, to, value, data } = req.query
+    const transactionRequest = { chainId, from: String(from), to: String(to), value: String(value), data: String(data) }
+    
+    const response = await calculateGasFee(transactionRequest)
+    res.json(response);
+  } catch (e) {
+    res.json({ error: "server_error" })
+  }
 });
 
 app.listen(port, () => {
